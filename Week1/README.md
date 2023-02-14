@@ -29,6 +29,8 @@ You can inspect the entity relationship diagram and example data below.
 
 Entity Relationship Diagram
 
+![image](https://user-images.githubusercontent.com/101874878/218839131-1d27556d-e1ac-4ab4-9b2d-43b0c8806060.png)
+
 Example Datasets
 All datasets exist within the dannys_diner database schema - be sure to include this reference within your SQL scripts as you start exploring the data and answering the case study questions.
 
