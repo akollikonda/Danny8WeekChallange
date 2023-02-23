@@ -98,3 +98,51 @@ select s.customer_id,
     group by s.customer_id;
     
 /* 10) In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?*/
+
+
+with member_days as (select mem.customer_id,m.product_name,m.price,datediff(s.order_date,mem.join_date) as days_joined
+	from members mem 
+    join sales s on mem.customer_id=s.customer_id 
+    join menu m on s.product_id=m.product_id
+    where s.order_date>mem.join_date)
+    select customer_id,
+    sum(case when days_joined<7 then price*20
+		else price*10
+        end) points
+    from member_days
+    group by customer_id
+    order by customer_id;
+    
+/* Bonus Question 1*/
+
+select mem.customer_id,
+	s.order_date,
+    m.product_name,
+    m.price,
+    (case when s.order_date>=mem.join_date then "Y"
+		else "N"
+        end) as member
+ from members mem
+	join sales s on mem.customer_id=s.customer_id
+    join menu m on s.product_id=m.product_id
+    order by mem.customer_id,s.order_date;
+    
+/* Bonus Question 2*/
+
+with membership as (select 
+	s.customer_id,
+    s.order_date,
+    m.product_name,
+    m.price,
+    (case when s.order_date>=mem.join_date then "Y"
+		else "N"
+        end) as member
+	from sales s
+	join menu m on s.product_id=m.product_id
+    left join members mem on mem.customer_id=s.customer_id)
+    select *,
+    (case when member="N" then null
+		else dense_Rank() over (partition by s.customer_id,member order by s.order_date) 
+        end)as ranking 
+        from membership;
+
