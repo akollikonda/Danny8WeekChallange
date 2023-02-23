@@ -59,4 +59,42 @@ select fd.customer_id,m.product_name
     where s.order_date=fd.first_order
     order by fd.customer_id;
     
+ /* 7) Which item was purchased just before the customer became a member?*/
  
+ with last_date as(select a.customer_id,max(b.order_date) as last_order
+	from members a
+    join sales b on a.customer_id=b.customer_id
+    join menu c on b.product_id=c.product_id
+    where b.order_date<a.join_date
+    group by a.customer_id
+    order by a.customer_id)
+select ld.customer_id,m.product_name 
+	from last_date ld
+    join sales s on ld.customer_id=s.customer_id
+    join menu m on s.product_id=m.product_id
+    where s.order_date=ld.last_order
+    order by ld.customer_id;
+
+/* 8) What is the total items and amount spent for each member before they became a member? */
+
+select mem.customer_id,
+	count(distinct s.product_id) as product_count,
+	sum(price) as amount_spent
+	from members mem 
+    join sales s on mem.customer_id=s.customer_id 
+    join menu m on s.product_id=m.product_id
+    where s.order_date<=mem.join_date
+    group by mem.customer_id
+    order by mem.customer_id;
+    
+/* 9) If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?*/
+
+select s.customer_id,
+	sum(case when m.product_name="sushi" then m.price*20
+    else m.price*10
+    end) as points
+	from sales s 
+    join menu m on s.product_id=m.product_id
+    group by s.customer_id;
+    
+/* 10) In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?*/
