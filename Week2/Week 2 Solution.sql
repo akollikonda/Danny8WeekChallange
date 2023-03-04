@@ -82,3 +82,26 @@ group by day_of_week
 order by day_of_week;
 
 
+/* B. Runner and Customer Experience*/
+
+/*1) How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)*/
+
+select 
+	extract(week from registration_date) as week_num,
+    count(*) as runners_joined 
+from runners 
+group by week_num
+order by week_num;
+
+/*2) What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?*/
+
+with time_taken_to_pick as(select 
+	distinct co.order_id,
+    ro.runner_id,
+    timediff(ro.pickup_time,co.order_time) as time_taken
+from customer_orders co
+right join runner_orders ro on co.order_id=ro.order_id
+where timediff(ro.pickup_time,co.order_time) is not null)
+select runner_id, avg(time_taken)/60 time_in_min from time_taken_to_pick group by runner_id order by runner_id;
+
+/*3) */
