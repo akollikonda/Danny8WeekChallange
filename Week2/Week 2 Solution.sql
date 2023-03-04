@@ -56,3 +56,29 @@ limit 1;
 
 /* 7) For each customer, how many delivered pizzas had at least 1 change and how many had no changes?*/
 
+select 
+	customer_id,
+    sum(case when (exclusions = '' or  exclusions is null ) and (extras = '' or  extras is null) then 1 else 0 end) as no_extras,
+    sum(case when (exclusions <> '' and  exclusions is not null ) or  (extras <> '' and  extras is not null)then 1 else 0 end) as atleast_one_extra
+from customer_orders
+group by customer_id;
+
+/* 9) What was the total volume of pizzas ordered for each hour of the day?*/
+
+select 
+	extract(HOUR from order_time) as hour_of_day,
+    count(*) as pizzas_ordered 
+from customer_orders 
+group by hour_of_day
+order by hour_of_day;
+
+/* 10) What was the volume of orders for each day of the week?*/
+
+select 
+	extract(day from order_time) as day_of_week,
+    count(*) as pizzas_ordered 
+from customer_orders 
+group by day_of_week
+order by day_of_week;
+
+
