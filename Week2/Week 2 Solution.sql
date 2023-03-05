@@ -104,4 +104,43 @@ right join runner_orders ro on co.order_id=ro.order_id
 where timediff(ro.pickup_time,co.order_time) is not null)
 select runner_id, avg(time_taken)/60 time_in_min from time_taken_to_pick group by runner_id order by runner_id;
 
-/*3) */
+/*3) Is there any relationship between the number of pizzas and how long the order takes to prepare?*/
+
+with cte as(
+select c.order_id, count(c.order_id) as PizzaCount, round((timestampdiff(minute, order_time, pickup_time))) as Avgtime
+from customer_orders as c
+inner join runner_orders as r
+on c.order_id = r.order_id
+where distance != 0 
+group by c.order_id,Avgtime)
+select PizzaCount, avg(Avgtime)
+from cte
+group by PizzaCount;
+
+/*4) What was the average distance travelled for each customer?*/
+
+select 
+	c.customer_id, 
+	avg(r.distance) avg_distance
+from customer_orders as c
+inner join runner_orders as r
+on c.order_id = r.order_id
+group by c.customer_id;
+
+/*5) What was the difference between the longest and shortest delivery times for all orders?*/
+
+select max(duration)-min(duration) as diff from runner_orders where duration not like "null"; 
+
+/*6) What was the average speed for each runner for each delivery and do you notice any trend for these values?*/
+
+select runner_id,avg((distance/duration))as avg_speed from runner_orders group by runner_id;
+
+/*7) What is the successful delivery percentage for each runner?*/
+
+select 
+	runner_id,
+    avg(case when (cancellation = 'Restaurant Cancellation') or (cancellation = 'Customer Cancellation') then 0
+         else 1
+	end)*100 as delievery_percentage
+from runner_orders
+group by runner_id;
