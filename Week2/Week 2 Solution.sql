@@ -144,3 +144,9 @@ select
 	end)*100 as delievery_percentage
 from runner_orders
 group by runner_id;
+
+
+/* C) Ingredient Optimisation*/
+
+/*1) What are the standard ingredients for each pizza?*/
+
